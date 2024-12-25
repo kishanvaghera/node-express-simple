@@ -1,9 +1,13 @@
-import instialData from "../db/db.js";
 import CustErroHelper from "../utils/custErrorHelper.js";
+import fs from "fs";
+
+//@Get DB Url
+const DB_URI = "./db/db.json";
 
 //@Get All Post
 const GetAllPost = (req, res, next) => {
     try {
+        const instialData = JSON.parse(fs.readFileSync(DB_URI, 'utf8'));
         if (!instialData) {
             return res.status(412).json({
                 success: false,
@@ -31,6 +35,8 @@ const GetSinglePost = async (req, res, next) => {
             return CustErroHelper(next, "No data found.", 412);
         }
 
+        const instialData = JSON.parse(fs.readFileSync(DB_URI, 'utf8'));
+
         const filterData = await instialData.filter(curEle => curEle.id == id);
         if (!filterData.length) {
             return CustErroHelper(next, "No data found.", 412);
@@ -56,6 +62,8 @@ const AddPost = async (req, res, next) => {
             return CustErroHelper(next, "User Id & Title is required.", 404);
         }
 
+        const instialData = JSON.parse(fs.readFileSync(DB_URI, 'utf8'));
+
         const isUserIdExist = instialData ? instialData.find(cur => cur.userId == userId) : 0;
 
         if (isUserIdExist) {
@@ -67,7 +75,9 @@ const AddPost = async (req, res, next) => {
             "id": instialData.length + 1,
             "title": title,
             "completed": completed && false
-        })
+        });
+
+        await fs.writeFileSync(DB_URI, JSON.stringify(instialData))
 
         return res.status(200).json({
             success: true,
@@ -81,7 +91,7 @@ const AddPost = async (req, res, next) => {
 }
 
 //@update post
-const UpdatePost = (req, res, next) => {
+const UpdatePost = async (req, res, next) => {
     try {
         const id = parseInt(req.params.id);
         const { userId, title, completed } = req.body;
@@ -94,6 +104,8 @@ const UpdatePost = (req, res, next) => {
             return CustErroHelper(next, "User id required.", 400);
         }
 
+        const instialData = JSON.parse(fs.readFileSync(DB_URI, 'utf8'));
+
         const PostDuplicate = instialData ? instialData.find(cur => cur.userId == userId && cur.userId != id) : 0;
         if (PostDuplicate) {
             return CustErroHelper(next, "Post duplicate found.", 400);
@@ -104,17 +116,19 @@ const UpdatePost = (req, res, next) => {
             return CustErroHelper(next, "Post not exist.", 404);
         }
 
-        const newData = instialData[findIndex] = {
+        instialData[findIndex] = {
             ...instialData[findIndex],
             userId,
             title,
             completed
         }
 
+        await fs.writeFileSync(DB_URI, JSON.stringify(instialData))
+
         return res.status(200).json({
             success: true,
             message: "Post has been updated successfull.",
-            data: newData
+            data: instialData[findIndex]
         })
 
     } catch (error) {
