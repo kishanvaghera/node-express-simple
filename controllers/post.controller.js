@@ -1,3 +1,4 @@
+import { uploadImageToS3 } from "../helpers/upload.js";
 import CustErroHelper from "../utils/custErrorHelper.js";
 import fs from "fs";
 
@@ -136,4 +137,18 @@ const UpdatePost = async (req, res, next) => {
     }
 }
 
-export { GetAllPost, GetSinglePost, AddPost, UpdatePost }
+const FileUpload = async (req, res, next) => {
+    if (!req.file) {
+        return res.status(400).send('No files were uploaded.');
+    }
+
+    const Location = await uploadImageToS3(req.file, next);
+
+    return res.status(200).json({
+        success: true,
+        message: "File upload successfull.",
+        data: Location
+    })
+}
+
+export { GetAllPost, GetSinglePost, AddPost, UpdatePost, FileUpload }
