@@ -1,3 +1,4 @@
+import { RemoveImage } from "../helpers/removeImage.js";
 import { uploadImageToS3 } from "../helpers/upload.js";
 import CustErroHelper from "../utils/custErrorHelper.js";
 import fs from "fs";
@@ -139,7 +140,7 @@ const UpdatePost = async (req, res, next) => {
 
 const FileUpload = async (req, res, next) => {
     if (!req.file) {
-        return res.status(400).send('No files were uploaded.');
+        return CustErroHelper(next, 'No files were uploaded.', 400);
     }
 
     const Location = await uploadImageToS3(req.file, next);
@@ -151,4 +152,21 @@ const FileUpload = async (req, res, next) => {
     })
 }
 
-export { GetAllPost, GetSinglePost, AddPost, UpdatePost, FileUpload }
+const DeleteFile = async (req, res, next) => {
+    const { key } = req.body;
+    if (!key) {
+        return CustErroHelper(next, 'Some error occured.', 400);
+    }
+
+    try {
+        await RemoveImage(key);
+        return res.status(200).json({
+            success: true,
+            message: "File deleted successfull.",
+        })
+    } catch (error) {
+        return CustErroHelper(next, error.message, 400);
+    }
+}
+
+export { GetAllPost, GetSinglePost, AddPost, UpdatePost, FileUpload, DeleteFile }

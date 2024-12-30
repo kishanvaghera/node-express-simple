@@ -1,7 +1,6 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
 import sharp from "sharp";
 
-
 const ResizeImage = async (file) => {
     return await sharp(file.buffer)
         .resize({
@@ -39,7 +38,7 @@ const uploadFileToS3 = async (buffer, mimetype, next) => {
         const command = new PutObjectCommand(params);
         await Client.send(command);
 
-        return Location;
+        return { Location, key };
     } catch (error) {
         return CustErroHelper(next, error.message, 404);
     }
