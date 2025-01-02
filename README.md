@@ -22,7 +22,7 @@ Ensure you have the following before starting:
 
    ```bash
    git clone https://github.com/kishanvaghera/node-express-simple.git
-   cd nodejs-s3-upload
+   cd node-express-simple
    ```
 
 2. Install dependencies:
