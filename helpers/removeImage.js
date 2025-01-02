@@ -15,7 +15,6 @@ export const RemoveImage = async (key) => {
         Key: key
     };
 
-    console.log("params=>", params)
     try {
         const command = new DeleteObjectCommand(params);
         await Client.send(command);

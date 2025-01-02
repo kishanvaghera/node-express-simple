@@ -36,7 +36,7 @@ const uploadFileToS3 = async (buffer, mimetype, next) => {
 
     try {
         const command = new PutObjectCommand(params);
-        await Client.send(command);
+        Client.send(command);
 
         return { Location, key };
     } catch (error) {
